@@ -1,0 +1,89 @@
+====
+
+HOW TO USE
+Format to initialize:
+>> musicvisualizer(fileName, useGPU, timeToPlay)
+
+All files take this input. Files must be of the wav format. The filename should be relative to the script and the time to play should be in seconds. "useGPU" is a integer value used as a boolean to use the GPU or not. 1 means to run the code on GPU and 0 means use the CPU. If a length is not provided, the whole song will be loaded. However, it's possible there will be memory errors if you try to load a big wav file (especially in Linux), so if there are errors, try a value such as 20 or 30 seconds. 
+
+I have provided four audio samples. The visualizer works best in the order of the songs.
+
+AtTehDisko.wav: By Trash80(See references for credit)
+KeepOnMoving.wav: By Covert (See references for credit)
+CertainDeath.wav: By Blackberry (See references for credit)
+NewMusic.wav: By Alex (See references for credit)
+
+====
+
+Description:
+
+I have made an audio sample visualizer. There are four graphs shown in this visualizer. 
+
+- The top left one is simply the wave form of the audio sample. 
+
+- The top right one is an output of a few functions of the main waveform. First the waveform was broken into six bands and then Fast Fourier Transformed. Then the individual bands were full-wave rectified and applying the process as explained in the reference. 
+
+- The bottom left graph are spheres that correspond to each of the bands and the spheres will expand when a sudden change in that band is noted. The speheres will pulsate as per their corresponding FFTs. The changes have been normalized, so it does not convey which band is strongest.
+
+- The bottom right is an attempt to come up with a single beat detection. The band with the greatest values is shown, this will show the most intense band.
+
+By breaking up the FFT into six bands it's possible to notice the changes for single range of frequencies. This allows for visualization of say a drum which does not change in pitch throughout a song. For the original CPU source code I have used the "Beat This" source as inspiration and adapted parts of it for the GPU version. Most of this resides in the "analyze.m" file.
+
+The main reason for the speed up is that previously the bands were put through the functions serially, but with the capabilities of JACKET/CUDA it was possible to put all six bands through most calculations at once, thereby greatly reducing the time for computation. 
+
+Quick Note: This visualizer just looks for the loudest sounds on a certain frequency range. Sometimes, it may try to show a range of frequencies that aren't on the beat, so it's not perfect. The songs best used are in which the drums very distringuishable from the background, and preferably one with minimal instruments.
+
+====
+
+Speed Ups:
+
+Timeit isn't really useful since the code runs for however long the song is. So this is how many seconds it takes for one loop to complete.
+
+GPU Version: .0296
+CPU Version: .1304
+Speed Up: ~4.4x
+
+Using Timeit  I got these values for the "heart" (analyze.m) of the code for a full song at once:
+
+GPU: .0934
+CPU: 1.4
+Speed Up: ~15x
+
+====
+
+Issues/Notes:
+
+- The top right graph on the GPU Version is a bit finicky (sometimes it only graphs one line), I don't know if it's my code because the error seems to be random at the moment.  The code works perfectly in the CPU version, which leads me to believe it's something to do with the graphing library in JACKET.
+- In JACKET the order for graphs are up to down and then the next column. In Matlab the order is across each row. So slightly different subplot IDs are used in the code.
+
+====
+
+References:
+
+Beat This Original Code: 
+http://www.clear.rice.edu/elec301/Projects01/beat_sync/beatalgo.html
+
+Songs Used:
+
+"The New Music" by Alex (feat. Spinningmerkaba)
+http://ccmixter.org/files/AlexBeroza/30513
+is licensed under a Creative Commons license:
+http://creativecommons.org/licenses/by/3.0/
+
+"At Teh Disko" by Trash80
+http://trash80.net/content/71/Icarus-EP
+
+"Certain Death (Still Alive Remix)" by Blackberry
+http://ccmixter.org/files/Blackberry/17059
+is licensed under a Creative Commons license:
+http://creativecommons.org/licenses/by-nc/3.0/
+
+"Keep On Movin" by Covert
+http://ccmixter.org/files/blakeht/27141
+is licensed under a Creative Commons license:
+http://creativecommons.org/licenses/by/2.5/
+
+====
+
+Vidhur Vohra
+vvohra@gatech.edu
